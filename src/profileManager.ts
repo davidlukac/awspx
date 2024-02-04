@@ -4,7 +4,7 @@ import * as ini from 'ini';
 
 const credentialsPath = `${os.homedir()}/.aws/credentials`;
 
-export const getProfiles = (): { [key: string]: any } => {
+export const getProfiles = (): { [key: string]: unknown } => {
     const content = fs.readFileSync(credentialsPath, 'utf-8');
     return ini.parse(content);
 }

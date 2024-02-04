@@ -2,23 +2,14 @@
 
 import {getProfiles, listProfiles, renameProfile, switchProfile} from './profileManager';
 import {execSync} from "node:child_process";
-
+import {isFzfInstalled} from "./fzfTools";
+import {isErrorWithStatus} from "./errorTools";
 
 const args = process.argv.slice(2);
 
-function isFzfInstalled(): boolean {
-    let fzfInstalled = false;
-
-    try {
-        execSync('fzf --version', {stdio: 'ignore'});
-        fzfInstalled = true;
-    } catch {
-        // Nothing to do.
-    }
-
-    return fzfInstalled;
-}
-
+/**
+ * Interactively select profile to switch to with 'fzf'.
+ */
 const selectProfileInteractive = () => {
     let output;
 
@@ -28,17 +19,33 @@ const selectProfileInteractive = () => {
 
     try {
         output = execSync(cmd, {stdio: ['inherit', 'pipe', 'inherit']}).toString().trim();
-    } catch (error) {
-        console.log(JSON.stringify(error));
+    } catch (e: unknown) {
+        if (e instanceof Error) {
+            if (isErrorWithStatus(e) && e.status === 130) {
+                console.debug('Profile selection interrupted by user.')
+                output = null;
+            } else {
+                console.error(e.message);
+            }
+        } else {
+            console.error(JSON.stringify(e));
+        }
     }
 
-    if (output && profile_names.includes(output)) {
-        switchProfile(output);
+    if (output) {
+        if (profile_names.includes(output)) {
+            switchProfile(output);
+        } else {
+            console.log(`Invalid profile: '${output}'`);
+        }
     } else {
-        console.log(`Invalid profile: '${output}'`);
+        console.log('Profile not specified.');
     }
 };
 
+/**
+ * Handle and dispatch commands from command line arguments.
+ */
 const handleCommands = () => {
     if (args.length === 0) {
         if (process.stdout.isTTY && isFzfInstalled()) {
