@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
-import {getProfiles, listProfiles, renameProfile, switchProfile} from './profileManager';
 import {execSync} from "node:child_process";
-import {isFzfInstalled} from "./fzfTools";
-import {isErrorWithStatus} from "./errorTools";
+
+import {isErrorWithStatus} from "./utils/isErrorWithStatus";
+
+import {isFzfInstalled} from "./utils/isFzfInstalled";
+import {ProfileManager} from "./profiles/ProfileManager";
+import os from "os";
 
 const args = process.argv.slice(2);
+const credentialsPath = `${os.homedir()}/.aws/credentials`;
+const profileManager = new ProfileManager(credentialsPath);
 
 /**
  * Interactively select profile to switch to with 'fzf'.
@@ -13,7 +18,7 @@ const args = process.argv.slice(2);
 const selectProfileInteractive = () => {
     let output;
 
-    const profiles = getProfiles();
+    const profiles = profileManager.getProfiles();
     const profile_names = Object.keys(profiles);
     const cmd = `echo "${profile_names.join('\\n')}" | fzf --exact`;
 
@@ -34,7 +39,7 @@ const selectProfileInteractive = () => {
 
     if (output) {
         if (profile_names.includes(output)) {
-            switchProfile(output);
+            profileManager.switchProfile(output);
         } else {
             console.log(`Invalid profile: '${output}'`);
         }
@@ -51,18 +56,18 @@ const handleCommands = () => {
         if (process.stdout.isTTY && isFzfInstalled()) {
             selectProfileInteractive();
         } else {
-            listProfiles();
+            profileManager.listProfiles();
         }
     } else {
         const command = args[0];
 
         if (command === '-') {
-            switchProfile('default'); // Simplified for the example
+            profileManager.switchProfile('default'); // Simplified for the example
         } else if (command.includes('=')) {
             const [oldName, newName] = command.split('=');
-            renameProfile(oldName, newName);
+            profileManager.renameProfile(oldName, newName);
         } else {
-            switchProfile(command);
+            profileManager.switchProfile(command);
         }
     }
 };

@@ -3,7 +3,7 @@ import {execSync} from "node:child_process";
 /**
  * Check if `fzf` is installed on the system.
  *
- * @returns (boolean)
+ * @returns boolean
  */
 export const isFzfInstalled = (): boolean => {
     let fzfInstalled = false;
