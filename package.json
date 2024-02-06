@@ -1,9 +1,13 @@
 {
   "name": "awspx",
+  "version": "0.1.0",
   "description": "AWS Profile Switcher",
-  "author": "David Lukac <email@example.com>",
   "license": "MIT",
-  "version": "0.1.0-dev",
+  "author": "David Lukac <1215290+davidlukac@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidlukac/awspx"
+  },
   "main": "dist/index.js",
   "bin": {
     "awspx": "./dist/index.js"
@@ -12,7 +16,9 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
+    "prebuild": "rm -rf dist/",
+    "build": "tsc",
+    "postbuild": "chmod +x dist/index.js",
     "start": "node ./dist/index.js",
     "lint": "npx eslint src/"
   },
