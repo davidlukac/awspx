@@ -3,7 +3,7 @@
   "description": "AWS Profile Switcher",
   "author": "David Lukac <email@example.com>",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.0-dev",
   "main": "dist/index.js",
   "bin": {
     "awspx": "./dist/index.js"
